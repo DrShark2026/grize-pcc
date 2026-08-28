@@ -1,4 +1,4 @@
-Grize PCC V5 - version simple
+# Grize PCC V5 - version simple
 import sqlite3, json, os, re, glob
 from datetime import datetime
 
@@ -23,15 +23,14 @@ def log(notion, op, src, cible, imP=""):
     else: nid=r[0]
     cur.execute("INSERT INTO operations VALUES (NULL,?,?,?,?,?,?,?,?)",(nid,op,src,cible,imP,"A",datetime.now().strftime("%H:%M"),""))
     con.commit(); con.close()
-    print(f" + [{op}] {src} -> {cible}")
 
 def voir(notion):
     con=sqlite3.connect(DB); cur=con.cursor()
     cur.execute("SELECT id FROM notions WHERE nom=?",(notion,))
     r=cur.fetchone()
-    if not r: print("vide"); return
+    if not r: return []
     cur.execute("SELECT op_code, src, cible FROM operations WHERE notion_id=?", (r[0],))
-    for op,src,cib in cur.fetchall(): print(f" {op} | {src} -> {cib}")
+    return cur.fetchall()
 
 if __name__ == "__main__":
     while True:
@@ -46,22 +45,5 @@ if __name__ == "__main__":
             imp=input("im(P)? > ") or ""
             log(n,op,s,ci,imp)
         elif c=="2":
-            voir(input("Notion? > "))
-        elif c=="3":
-            try:
-                import matplotlib.pyplot as plt, networkx as nx
-                notion=input("Notion? > ")
-                con=sqlite3.connect(DB); cur=con.cursor()
-                cur.execute("SELECT id FROM notions WHERE nom=?",(notion,))
-                r=cur.fetchone()
-                if not r: print("vide"); continue
-                cur.execute("SELECT src, cible, op_code FROM operations WHERE notion_id=?", (r[0],))
-                rows=cur.fetchall()
-                G=nx.DiGraph()
-                for s,c,o in rows: G.add_edge(s,c,label=o)
-                pos=nx.spring_layout(G)
-                nx.draw(G,pos,with_labels=True,node_color="lightyellow",node_size=2000)
-                plt.savefig(f"{EXPORT_DIR}/{notion}_graphe.png"); plt.close()
-                print(f"Graphe sauvé dans {EXPORT_DIR}/{notion}_graphe.png")
-            except Exception as e: print(e); print("fais: sudo apt-get install python3-matplotlib python3-networkx")
+            print(voir(input("Notion? > ")))
         elif c=="4": break
