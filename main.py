@@ -1,4 +1,4 @@
-# Grize PCC V5 - version simple
+Grize PCC V5 - version simple
 import sqlite3, json, os, re, glob
 from datetime import datetime
 
@@ -33,35 +33,35 @@ def voir(notion):
     cur.execute("SELECT op_code, src, cible FROM operations WHERE notion_id=?", (r[0],))
     for op,src,cib in cur.fetchall(): print(f" {op} | {src} -> {cib}")
 
-while True:
-    print("\n--- MENU V5 SIMPLE ---")
-    print("1.Construire 2.Voir 3.Graphe 4.Quitter")
-    c=input("> ")
-    if c=="1":
-        n=input("Notion ex:pavé > ") or "pavé"
-        s=input(f"Source [{n}] > ") or n
-        ci=input("Cible ex:plage > ") or "plage"
-        op=input("Op γ1/ρ3/θ5/R/θ3 [ρ3] > ") or "ρ3"
-        imp=input("im(P)? > ") or ""
-        log(n,op,s,ci,imp)
-    elif c=="2":
-        voir(input("Notion? > "))
-    elif c=="3":
-        try:
-            import matplotlib.pyplot as plt, networkx as nx
-            notion=input("Notion? > ")
-            con=sqlite3.connect(DB); cur=con.cursor()
-            cur.execute("SELECT id FROM notions WHERE nom=?",(notion,))
-            r=cur.fetchone()
-            if not r: print("vide"); continue
-            cur.execute("SELECT src, cible, op_code FROM operations WHERE notion_id=?", (r[0],))
-            rows=cur.fetchall()
-            G=nx.DiGraph()
-            for s,c,o in rows: G.add_edge(s,c,label=o)
-            pos=nx.spring_layout(G)
-            nx.draw(G,pos,with_labels=True,node_color="lightyellow",node_size=2000)
-            plt.savefig(f"{EXPORT_DIR}/{notion}_graphe.png"); plt.close()
-            print(f"Graphe sauvé dans {EXPORT_DIR}/{notion}_graphe.png")
-        except Exception as e: print(e); print("fais: sudo apt-get install python3-matplotlib python3-networkx")
-    elif c=="4": break
-PY
+if __name__ == "__main__":
+    while True:
+        print("\n--- MENU V5 SIMPLE ---")
+        print("1.Construire 2.Voir 3.Graphe 4.Quitter")
+        c=input("> ")
+        if c=="1":
+            n=input("Notion ex:pavé > ") or "pavé"
+            s=input(f"Source [{n}] > ") or n
+            ci=input("Cible ex:plage > ") or "plage"
+            op=input("Op γ1/ρ3/θ5/R/θ3 [ρ3] > ") or "ρ3"
+            imp=input("im(P)? > ") or ""
+            log(n,op,s,ci,imp)
+        elif c=="2":
+            voir(input("Notion? > "))
+        elif c=="3":
+            try:
+                import matplotlib.pyplot as plt, networkx as nx
+                notion=input("Notion? > ")
+                con=sqlite3.connect(DB); cur=con.cursor()
+                cur.execute("SELECT id FROM notions WHERE nom=?",(notion,))
+                r=cur.fetchone()
+                if not r: print("vide"); continue
+                cur.execute("SELECT src, cible, op_code FROM operations WHERE notion_id=?", (r[0],))
+                rows=cur.fetchall()
+                G=nx.DiGraph()
+                for s,c,o in rows: G.add_edge(s,c,label=o)
+                pos=nx.spring_layout(G)
+                nx.draw(G,pos,with_labels=True,node_color="lightyellow",node_size=2000)
+                plt.savefig(f"{EXPORT_DIR}/{notion}_graphe.png"); plt.close()
+                print(f"Graphe sauvé dans {EXPORT_DIR}/{notion}_graphe.png")
+            except Exception as e: print(e); print("fais: sudo apt-get install python3-matplotlib python3-networkx")
+        elif c=="4": break
